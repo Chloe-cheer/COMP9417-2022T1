@@ -1,3 +1,15 @@
+# Input Path
+input/
+
+# Project Specific
+*.vector_cache
+*.word_vectors_cache
+*checkpoints
+
+# MacOS
+.DS_Store
+
+# Python Defaults
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
