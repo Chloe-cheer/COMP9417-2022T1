@@ -3,7 +3,7 @@ import numpy as np
 import gc 
 from torch.utils.data import DataLoader
 
-def get_dataloaders(){
+def get_dataloaders():
   y_train = np.load('y_train.npy')
   X_train = np.load('X_train.npy', mmap_mode='r')
 
