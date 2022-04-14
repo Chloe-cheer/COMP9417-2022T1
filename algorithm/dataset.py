@@ -25,7 +25,7 @@ def get_dataloaders():
   print("Training data finished.")
   print("Preparing validation data...")
   ## Last 172 are "test data"
-  while i < n_validate:
+  while i < n_train + n_validate:
       validate_data.append([np.array(X_train[i]),y_train[i]])
       i = i + 1
 
