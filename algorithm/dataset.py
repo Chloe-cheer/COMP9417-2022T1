@@ -56,7 +56,7 @@ def get_haralick(input_dataloader):
     i = 0 
     for batch_features, batch_label in iter(input_dataloader):
         for batch_feature in batch_features:
-            gray =  np.dot(batch_feature[...,:3], [76.24499999999999, 149.685, 29.07]) #combines unormalisation and 
+            gray =  np.dot(batch_feature[...,:3], [76.24499999999999, 149.685, 29.07]) #combines unormalisation and grey-scale conversion
             haralick_feature = extract_features(gray.astype(int))
             haralick_features.append(haralick_feature)
             i = i + 1 
