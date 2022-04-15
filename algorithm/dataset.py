@@ -2,6 +2,7 @@
 import numpy as np
 import gc 
 from torch.utils.data import DataLoader
+import mahotas as mt
 
 def get_dataloaders():
   y_train = np.load('y_train.npy')
@@ -49,3 +50,20 @@ def get_dataloaders():
   gc.collect()
   
   return train_dataloader, validate_dataloader, test_dataloader 
+
+def get_haralick(input_dataloader):
+    haralick_features = []
+    i = 0 
+    for batch_features, batch_label in iter(input_dataloader):
+        for batch_feature in batch_features:
+            gray =  np.dot(batch_feature[...,:3], [76.24499999999999, 149.685, 29.07]) #combines unormalisation and 
+            haralick_feature = extract_features(gray.astype(int))
+            haralick_features.append(haralick_feature)
+            i = i + 1 
+    return haralick_features
+
+train_dataloader, validate_dataloader, test_dataloader = get_dataloaders()
+# returns numpy arrays of haralick features
+haralick_train = get_haralick(train_dataloader)
+haralick_validate = get_haralick(validate_dataloader)
+haralick_test = get_haralick(test_dataloader)
