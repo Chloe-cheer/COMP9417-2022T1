@@ -14,7 +14,7 @@ from numpy import save
 
 for i in range(0, 10):
 
-    X_train = np.load("X_train_chunks/X_train_{}.npy/X_train_{}.npy".format(str(i), str(i)))
+    X_train = np.load("../input/X_train_chunks/X_train_{}.npy".format(str(i)))
     print(X_train.shape)
 
     X_train = np.transpose(X_train, (0,3,1,2))

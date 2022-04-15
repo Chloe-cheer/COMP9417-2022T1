@@ -8,16 +8,15 @@ Original file is located at
 """
 
 import torch
-import torchvision
 import sklearn.metrics as metrics
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
 import statistics
-import tensorflow as tf
+# import tensorflow as tf
 import torch.optim as optim
 
-from google.colab import drive
+# from google.colab import drive
 # !unzip /content/drive/MyDrive/Colab\ Notebooks/MLproj/X_train_scaled.zip -d "/content"
 
 # Commented out IPython magic to ensure Python compatibility.
