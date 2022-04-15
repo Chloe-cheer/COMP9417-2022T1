@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 import mahotas as mt
 
 def get_dataloaders():
+  # change path if needed
   y_train = np.load('y_train.npy')
   X_train = np.load('X_train.npy', mmap_mode='r')
 
@@ -25,7 +26,7 @@ def get_dataloaders():
 
   print("Training data finished.")
   print("Preparing validation data...")
-  ## Last 172 are "test data"
+  ## Next 172 are "test data"
   while i < n_train + n_validate:
       validate_data.append([np.array(X_train[i]),y_train[i]])
       i = i + 1
