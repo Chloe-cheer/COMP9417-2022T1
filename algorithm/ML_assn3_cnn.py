@@ -7,6 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1SBfvNizBpxdYqOpQjhNgueqIp8kBAWdV
 """
 
+from typing import Any, Dict, List, Tuple
 import torch
 import sklearn.metrics as metrics
 import numpy as np
@@ -15,6 +16,14 @@ import matplotlib.pyplot as plt
 import statistics
 # import tensorflow as tf
 import torch.optim as optim
+from torch import nn
+from torch.utils.data import TensorDataset, DataLoader
+import time
+import datetime
+
+from modules.unet import UNet
+
+# from algorithm.modules import UNet
 
 # from google.colab import drive
 # !unzip /content/drive/MyDrive/Colab\ Notebooks/MLproj/X_train_scaled.zip -d "/content"
@@ -22,29 +31,76 @@ import torch.optim as optim
 # Commented out IPython magic to ensure Python compatibility.
 # %cp ./drive/MyDrive/Colab\ Notebooks/MLproj/y_train.npy ./
 
-X_train = np.load("X_train_scaled_00.npy")
-print(X_train.shape)
+# CONFIGS
+base_path = "../input/"
 
-for i in range(1, 10):
-  X_train = np.concatenate((X_train, np.load("X_train_scaled_0{}.npy".format(str(i)))), axis=0)
-for i in range(10, 18):
-  X_train = np.concatenate((X_train, np.load("X_train_scaled_{}.npy".format(str(i)))), axis=0)
+x_train_path = base_path+"X_train_chunks/"
+y_train_path = base_path+"y_train.npy"
 
-X_test = np.load("X_train_scaled_18.npy")
-X_test = np.concatenate((X_test, np.load("X_train_scaled_19.npy")), axis=0)
-print(X_train.shape)
-print(X_test.shape)
-y = np.load("y_train.npy")
-y_train = y[0:X_train.shape[0]]
-y_test = y[X_train.shape[0]:]
-print(y_train.shape)
-print(y_test.shape)
+split_ratio = "8:0:2" # train:val:test
+batch_size = 4
+
+split_ratio_lst = list(map(lambda x: int(x), split_ratio.split(":")))
+split_ratio_lst_total = sum(split_ratio_lst)
+data_size = 20
+split_slicing_indices = [int(data_size*(r/split_ratio_lst_total)) for r in split_ratio_lst]
+split_slicing_ranges: Dict[str, Tuple[int]] = {
+    "train": (0, split_slicing_indices[0]), 
+    "val": (split_slicing_indices[0], sum(split_slicing_indices[:2])),
+    "test": (sum(split_slicing_indices[:2]), sum(split_slicing_indices)),
+}
+print(f"split_slicing_ranges are {split_slicing_ranges}")
+
+def load_X_by_ratio(dataset_type: str) -> Any:
+    X = None
+    for i in range(*split_slicing_ranges[dataset_type]):
+        if X is None:
+            X = np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")
+        else:
+            X = np.concatenate((X, np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")), axis=0)
+    return X
+
+def load_all_y_by_ratio(shape_values: List[int]) -> Tuple[Any]:
+    y = np.load(y_train_path)
+    y_train = y[:shape_values[0]]
+    y_val = y[shape_values[0]:sum(shape_values[:2])]
+    y_test = y[sum(shape_values[:2]):]
+    return y_train, y_val, y_test
+
+X_train = load_X_by_ratio("train")
+X_val = load_X_by_ratio("val")
+X_test = load_X_by_ratio("test")
+
+validation = False
+if X_val is not None:
+    validation = True
+
+print(f"X_train.shape: {X_train.shape}") 
+if validation:
+    print(f"X_val.shape: {X_val.shape}") 
+print(f"X_test.shape: {X_test.shape}") 
+
+y_train, y_val, y_test = load_all_y_by_ratio([X_train.shape[0], X_val.shape[0] if validation else 0, X_test.shape[0]])
+print(f"y_train.shape: {y_train.shape}") 
+if validation:
+    print(f"y_val.shape: {y_val.shape}") 
+print(f"y_test.shape: {y_test.shape}") 
+
+# from collections import Counter
+# print(Counter(y_train))
+# print(Counter(y_val))
+# # print(Counter(np.concatenate((y_train, y_test), axis=0)))
+# exit()
 
 train_dataset = TensorDataset(torch.tensor(X_train), torch.tensor(y_train))
-train_dataloader = DataLoader(train_dataset, shuffle=True)
+train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
+
+if validation:
+    val_dataset = TensorDataset(torch.tensor(X_val), torch.tensor(y_val))
+    val_dataloader = DataLoader(val_dataset, shuffle=False, batch_size=batch_size)
 
 test_dataset = TensorDataset(torch.tensor(X_test), torch.tensor(y_test))
-test_dataloader = DataLoader(test_dataset, shuffle=True)
+test_dataloader = DataLoader(test_dataset, shuffle=False, batch_size=batch_size)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using {device} device")
@@ -136,6 +192,7 @@ class Network(nn.Module):
         return nn.Sequential(*layers)
 
 net = Network()
+# net = UNet(n_channels=1, n_classes=4)
 model = net.to(device)
 print(model)
 
@@ -143,54 +200,86 @@ optimizer = optim.Adam(net.parameters(), lr = 0.001)
 
 loss_func = nn.CrossEntropyLoss()
 
-train_val_split = 0.8
-batch_size = 1
-epochs = 40
+epochs = 30
+
+start = time.time()
+best_accuracy = 0.0 
 
 print("Start training...")
 for epoch in range(1,epochs+1):
-    total_loss = 0
+    total_train_loss = 0
+    total_val_loss = 0
     total_images = 0
     total_correct = 0
+
+    # Training
     for batch in train_dataloader:           # Load batch
-        images, labels = batch
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        images = images.to(device, dtype=torch.float)
-        labels = labels.type(torch.LongTensor)
-        labels = labels.to(device)
-
-        preds = model(images)             # Process batch
-
-        loss = loss_func(preds, labels) # Calculate loss
-
+        images_train, labels_train = batch
         optimizer.zero_grad()
-        loss.backward()                 # Calculate gradients
+        images_train = images_train.to(device, dtype=torch.float)
+        labels_train = labels_train.type(torch.LongTensor)
+        labels_train = labels_train.to(device)
+
+        preds_train = model(images_train)             # Process batch
+
+        train_loss = loss_func(preds_train, labels_train) # Calculate loss
+
+        train_loss.backward()                 # Calculate gradients
         optimizer.step()                # Update weights
+        total_train_loss += train_loss.item()
 
-        output = preds.argmax(dim=1)
+        if not validation:
+            output = preds_train.argmax(dim=1)
+            total_images += int(labels_train.size(0))
+            total_correct += int(output.eq(labels_train).sum().item())
 
-        total_loss += loss.item()
-        total_images += labels.size(0)
-        total_correct += output.eq(labels).sum().item()
+    # Get train loss
+    train_loss = total_train_loss/len(train_dataloader) 
 
-    model_accuracy = total_correct / total_images * 100
+    # Validation
+    if validation:
+        with torch.no_grad():
+            model.eval()
+            for batch in val_dataloader:
+                images_val, labels_val = batch
+                images_val = images_val.to(device, dtype=torch.float)
+                labels_val = labels_val.type(torch.LongTensor)
+                labels_val = labels_val.to(device)
 
-    print('ep {0}, loss: {1:.2f}, {2} train {3:.2f}%'.format(
-            epoch, total_loss, total_images, model_accuracy), end='')
+                preds_val = model(images_val)
+                val_loss = loss_func(preds_val, labels_val) 
+                total_val_loss += val_loss.item()
 
+                output = preds_val.argmax(dim=1)
+                total_images += int(labels_val.size(0))
+                total_correct += int(output.eq(labels_val).sum().item())
 
-    print()
+        # Get val loss
+        val_loss = total_val_loss/len(val_dataloader) 
 
-    if epoch % 10 == 0:
-        torch.save(net.state_dict(),'checkModel.pth')
-        print("   Model saved to checkModel.pth")
+    model_accuracy = total_correct / total_images
 
-    if model_accuracy > 99:
-      break
+    if not validation:
+        print(f"ep {epoch}, train loss: {train_loss:.2f}, Train Acc {model_accuracy*100:.2f}%")
+    else:
+        print(f"ep {epoch}, train loss: {train_loss:.2f}, val loss: {val_loss:.2f}, Val Acc {model_accuracy*100:.2f}%")
+
+    # if epoch % 10 == 0:
+    #     torch.save(net.state_dict(),'checkModel.pth')
+    #     print("   Model saved to checkModel.pth")
+
+    if model_accuracy > best_accuracy:
+        torch.save(net.state_dict(),'savedModel.pth')
+        print("\tModel saved to savedModel.pth")
+        best_accuracy = model_accuracy 
+
     sys.stdout.flush()
 
-torch.save(net.state_dict(),'savedModel.pth')
-print("   Model saved to savedModel.pth")
+# torch.save(net.state_dict(),'savedModel.pth')
+# print("   Model saved to savedModel.pth")
+
+end = time.time()
+print(f"\nTotal training time: {str(datetime.timedelta(seconds=end-start))}")
 
 # Function to test the model
 def test():
@@ -216,4 +305,7 @@ def test():
 
         print('Accuracy of the model based on the test set of the inputs is: %d %%' % (100 * running_accuracy / total))
 
+start = time.time()
 test()
+end = time.time()
+print(f"\nTotal testing time: {str(datetime.timedelta(seconds=end-start))}")

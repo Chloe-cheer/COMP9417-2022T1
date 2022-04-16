@@ -5,6 +5,8 @@ input/
 *.vector_cache
 *.word_vectors_cache
 *checkpoints
+*.pth
+*.npy
 
 # MacOS
 .DS_Store
