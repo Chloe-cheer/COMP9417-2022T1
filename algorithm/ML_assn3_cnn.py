@@ -32,6 +32,9 @@ import datetime
 # Commented out IPython magic to ensure Python compatibility.
 # %cp ./drive/MyDrive/Colab\ Notebooks/MLproj/y_train.npy ./
 
+test_only = True
+validation = False
+
 # CONFIGS
 base_path = "../input/"
 
@@ -50,69 +53,69 @@ data_size = 858
 split_sizes = [int(data_size*(r/split_ratio_lst_total)) for r in split_ratio_lst]
 split_sizes[-1] += data_size - sum(split_sizes)
 
-print(f"split_sizes are {split_sizes}")
+# print(f"split_sizes are {split_sizes}")
 
-class TransformTensorDataset(Dataset):
-    """TensorDataset with support of transforms.
-    """
-    def __init__(self, tensors, transform=None):
-        assert all(tensors[0].size(0) == tensor.size(0) for tensor in tensors)
-        self.tensors = tensors
-        self.transform = transform
+# class TransformTensorDataset(Dataset):
+#     """TensorDataset with support of transforms.
+#     """
+#     def __init__(self, tensors, transform=None):
+#         assert all(tensors[0].size(0) == tensor.size(0) for tensor in tensors)
+#         self.tensors = tensors
+#         self.transform = transform
 
-    def __getitem__(self, index):
-        x = self.tensors[0][index]
+#     def __getitem__(self, index):
+#         x = self.tensors[0][index]
 
-        if self.transform:
-            x = self.transform(x)
+#         if self.transform:
+#             x = self.transform(x)
 
-        y = self.tensors[1][index]
+#         y = self.tensors[1][index]
 
-        return x, y
+#         return x, y
 
-    def __len__(self):
-        return self.tensors[0].size(0)
+#     def __len__(self):
+#         return self.tensors[0].size(0)
 
-def load_X() -> Any:
-    X = None
-    for i in range(20):
-        if X is None:
-            X = np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")
-        else:
-            X = np.concatenate((X, np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")), axis=0)
-    return X
+# def load_X() -> Any:
+#     X = None
+#     for i in range(20):
+#         if X is None:
+#             X = np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")
+#         else:
+#             X = np.concatenate((X, np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")), axis=0)
+#     return X
 
-X = load_X()
-y = np.load(y_train_path)
+# X = load_X()
+# y = np.load(y_train_path)
 
-print(X.shape)
+# print(X.shape)
 
-full_dataset = TransformTensorDataset([torch.tensor(X), torch.tensor(y)])
+# full_dataset = TransformTensorDataset([torch.tensor(X), torch.tensor(y)])
 
-if not use_full_dataset_to_train_and_val:
-    validation = False
-    if len(split_sizes) == 3 and split_sizes[1] != 0:
-        data_train, data_val, data_test = random_split(full_dataset, split_sizes)
-        validation = True
-    else:
-        if len(split_sizes) == 3:
-            split_sizes.remove(0)
-        data_train, data_test = random_split(full_dataset, split_sizes)
+# if not use_full_dataset_to_train_and_val:
+#     validation = False
+#     if len(split_sizes) == 3 and split_sizes[1] != 0:
+#         data_train, data_val, data_test = random_split(full_dataset, split_sizes)
+#         validation = True
+#     else:
+#         if len(split_sizes) == 3:
+#             split_sizes.remove(0)
+#         data_train, data_test = random_split(full_dataset, split_sizes)
 
-    train_dataloader = DataLoader(data_train, shuffle=True, batch_size=batch_size)
+#     train_dataloader = DataLoader(data_train, shuffle=True, batch_size=batch_size)
 
-    if validation:
-        val_dataloader = DataLoader(data_val, shuffle=False, batch_size=batch_size)
+#     if validation:
+#         val_dataloader = DataLoader(data_val, shuffle=False, batch_size=batch_size)
 
-    test_dataloader = DataLoader(data_test, shuffle=False, batch_size=batch_size)
+#     test_dataloader = DataLoader(data_test, shuffle=False, batch_size=batch_size)
 
-else:
-    validation = True
-    data_train, data_val = random_split(full_dataset, split_sizes)
-    train_dataloader = DataLoader(data_train, shuffle=True, batch_size=batch_size)
-    print(len(train_dataloader.dataset))
-    val_dataloader = DataLoader(data_val, shuffle=False, batch_size=batch_size)
-    print(len(val_dataloader.dataset))
+# else:
+#     validation = True
+#     data_train, data_val = random_split(full_dataset, split_sizes)
+#     train_dataloader = DataLoader(data_train, shuffle=True, batch_size=batch_size)
+#     print(len(train_dataloader.dataset))
+#     val_dataloader = DataLoader(data_val, shuffle=False, batch_size=batch_size)
+#     print(len(val_dataloader.dataset))
 
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -158,7 +161,7 @@ class Network(nn.Module):
         super(Network, self).__init__()
         block=Block
         image_channels=1
-        num_classes=4
+        num_classes=5
         layers = [2, 2, 2]
         self.in_channels = 64
 
@@ -210,100 +213,102 @@ class Network(nn.Module):
             layers.append(block(self.in_channels, intermediate_channels)) # 256 -> 64, 64*4 (256) again
         return nn.Sequential(*layers)
 
-net = Network()
-# net = UNet(n_channels=1, n_classes=4)
-model = net.to(device)
-print(model)
 
-optimizer = optim.Adam(net.parameters(), lr = 0.01)
+# if not test_only:
+#     net = Network()
+#     # net = UNet(n_channels=1, n_classes=4)
+#     model = net.to(device)
+#     print(model)
 
-loss_func = nn.CrossEntropyLoss()
+#     optimizer = optim.Adam(net.parameters(), lr = 0.01)
 
-num_epochs = 40
+#     loss_func = nn.CrossEntropyLoss()
 
-start = time.time()
-best_accuracy = 0.0 
+#     num_epochs = 40
 
-print("Start training...")
-for epoch in range(1,num_epochs+1):
-    total_train_loss = 0
-    total_val_loss = 0
-    total_images = 0
-    total_correct = 0
+#     start = time.time()
+#     best_accuracy = 0.0 
 
-    # Training
-    for batch in train_dataloader:           # Load batch
-        images_train, labels_train = batch
-        optimizer.zero_grad()
-        images_train = images_train.to(device, dtype=torch.float)
-        labels_train = labels_train.type(torch.LongTensor)
-        labels_train = labels_train.to(device)
+#     print("Start training...")
+#     for epoch in range(1,num_epochs+1):
+#         total_train_loss = 0
+#         total_val_loss = 0
+#         total_images = 0
+#         total_correct = 0
 
-        preds_train = model(images_train)             # Process batch
+#         # Training
+#         for batch in train_dataloader:           # Load batch
+#             images_train, labels_train = batch
+#             optimizer.zero_grad()
+#             images_train = images_train.to(device, dtype=torch.float)
+#             labels_train = labels_train.type(torch.LongTensor)
+#             labels_train = labels_train.to(device)
 
-        train_loss = loss_func(preds_train, labels_train) # Calculate loss
+#             preds_train = model(images_train)             # Process batch
 
-        train_loss.backward()                 # Calculate gradients
-        optimizer.step()                # Update weights
-        total_train_loss += train_loss.item()
+#             train_loss = loss_func(preds_train, labels_train) # Calculate loss
 
-        if not validation:
-            output = preds_train.argmax(dim=1)
-            total_images += int(labels_train.size(0))
-            total_correct += int(output.eq(labels_train).sum().item())
+#             train_loss.backward()                 # Calculate gradients
+#             optimizer.step()                # Update weights
+#             total_train_loss += train_loss.item()
 
-    # Get train loss
-    train_loss = total_train_loss/len(train_dataloader) 
+#             if not validation:
+#                 output = preds_train.argmax(dim=1)
+#                 total_images += int(labels_train.size(0))
+#                 total_correct += int(output.eq(labels_train).sum().item())
 
-    # Validation
-    if validation:
-        with torch.no_grad():
-            model.eval()
-            for batch in val_dataloader:
-                images_val, labels_val = batch
-                images_val = images_val.to(device, dtype=torch.float)
-                labels_val = labels_val.type(torch.LongTensor)
-                labels_val = labels_val.to(device)
+#         # Get train loss
+#         train_loss = total_train_loss/len(train_dataloader) 
 
-                preds_val = model(images_val)
-                val_loss = loss_func(preds_val, labels_val) 
-                total_val_loss += val_loss.item()
+#         # Validation
+#         if validation:
+#             with torch.no_grad():
+#                 model.eval()
+#                 for batch in val_dataloader:
+#                     images_val, labels_val = batch
+#                     images_val = images_val.to(device, dtype=torch.float)
+#                     labels_val = labels_val.type(torch.LongTensor)
+#                     labels_val = labels_val.to(device)
 
-                output = preds_val.argmax(dim=1)
-                total_images += int(labels_val.size(0))
-                total_correct += int(output.eq(labels_val).sum().item())
-            model.train()
+#                     preds_val = model(images_val)
+#                     val_loss = loss_func(preds_val, labels_val) 
+#                     total_val_loss += val_loss.item()
 
-        # Get val loss
-        val_loss = total_val_loss/len(val_dataloader) 
+#                     output = preds_val.argmax(dim=1)
+#                     total_images += int(labels_val.size(0))
+#                     total_correct += int(output.eq(labels_val).sum().item())
+#                 model.train()
 
-    model_accuracy = total_correct / total_images
+#             # Get val loss
+#             val_loss = total_val_loss/len(val_dataloader) 
 
-    if not validation:
-        print(f"ep {epoch}, train loss: {train_loss:.2f}, Train Acc {model_accuracy*100:.2f}%")
-    else:
-        print(f"ep {epoch}, train loss: {train_loss:.2f}, val loss: {val_loss:.2f}, Val Acc {model_accuracy*100:.2f}%")
+#             model_accuracy = total_correct / total_images
 
-    # if epoch % 10 == 0:
-    #     torch.save(net.state_dict(),'checkModel.pth')
-    #     print("   Model saved to checkModel.pth")
+#             if not validation:
+#                 print(f"ep {epoch}, train loss: {train_loss:.2f}, Train Acc {model_accuracy*100:.2f}%")
+#             else:
+#                 print(f"ep {epoch}, train loss: {train_loss:.2f}, val loss: {val_loss:.2f}, Val Acc {model_accuracy*100:.2f}%")
 
-    if model_accuracy > best_accuracy:
-        torch.save(net.state_dict(),'savedModel.pth')
-        print("\tModel saved to savedModel.pth")
-        best_accuracy = model_accuracy 
+#             # if epoch % 10 == 0:
+#             #     torch.save(net.state_dict(),'checkModel.pth')
+#             #     print("   Model saved to checkModel.pth")
 
-    if epoch % 2 == 0:
-        torch.save(net.state_dict(),'checkModel{}.pth'.format(epoch))
-        print("   Model saved to checkModel.pth")
+#             if model_accuracy > best_accuracy:
+#                 torch.save(net.state_dict(),'savedModel.pth')
+#                 print("\tModel saved to savedModel.pth")
+#                 best_accuracy = model_accuracy 
 
-    sys.stdout.flush()
+#         if epoch % 2 == 0:
+#             torch.save(net.state_dict(),'checkModel{}.pth'.format(epoch))
+#             print("   Model saved to checkModel.pth")
 
-# torch.save(net.state_dict(),'savedModel.pth')
-# print("   Model saved to savedModel.pth")
+#         sys.stdout.flush()
 
-end = time.time()
-print(f"\nTotal training time: {str(datetime.timedelta(seconds=end-start))}")
+#     # torch.save(net.state_dict(),'savedModel.pth')
+#     # print("   Model saved to savedModel.pth")
+
+#     end = time.time()
+#     print(f"\nTotal training time: {str(datetime.timedelta(seconds=end-start))}")
 
 # Function to test the model
 def test(path): 
@@ -329,22 +334,104 @@ def test(path):
         print('Accuracy of the model based on the test set of the inputs is: %d %%' % (100 * running_accuracy / total))   
         return (100 * running_accuracy / total)
 
-if not use_full_dataset_to_train_and_val:
-    start = time.time()
+# if not use_full_dataset_to_train_and_val:
+#     start = time.time()
 
-    accuracies = []
-    epochs = []
-    for i in range(2, num_epochs+1, 2):
-        epochs.append(i)
-        accuracies.append(test('checkModel{}.pth'.format(str(i))))
-    plt.plot(epochs, accuracies)
-    plt.title('Testing Acc vs. Epochs of Training')
+#     accuracies = []
+#     epochs = []
+#     for i in range(2, num_epochs+1, 2):
+#         epochs.append(i)
+#         accuracies.append(test('checkModel{}.pth'.format(str(i))))
+#     plt.plot(epochs, accuracies)
+#     plt.title('Testing Acc vs. Epochs of Training')
 
-    stats_directory = "stats/"
-    if not os.path.exists(stats_directory):
-        os.makedirs(stats_directory)
+#     stats_directory = "stats/"
+#     if not os.path.exists(stats_directory):
+#         os.makedirs(stats_directory)
 
-    plt.savefig(f'{stats_directory}/testingacc.png')
+#     plt.savefig(f'{stats_directory}/testingacc.png')
 
-    end = time.time()
-    print(f"\nTotal testing time: {str(datetime.timedelta(seconds=end-start))}")
+#     end = time.time()
+#     print(f"\nTotal testing time: {str(datetime.timedelta(seconds=end-start))}")
+
+# if test_only:
+#     data = np.load("X_test_scaled.npy")
+#     test_dataloader = DataLoader(data, shuffle=False)
+
+#     def test(path): 
+#         # Load the model that we saved at the end of the training loop 
+#         model = Network()
+#         print('testing with path: ', path)
+#         model.load_state_dict(torch.load(path)) 
+#         device = "cuda" if torch.cuda.is_available() else "cpu"
+#         print(f"Using {device} device")    
+#         model.to(device) 
+
+#         with torch.no_grad(): 
+#             predictions = []
+#             for data in test_dataloader: 
+#                 images = data 
+#                 images = images.to(device, dtype=torch.float)
+#                 predicted_outputs = model(images) 
+#                 _, predicted = torch.max(predicted_outputs, 1) 
+#                 predictions.append(predicted.cpu().numpy())
+#             print(predictions)
+#             return predictions
+
+#     predictions = test('ModResNet_lr_01_bs_200.pth')
+#     np.save('testPredictions.npy', predictions)
+
+if test_only:
+
+    def load_X() -> Any:
+        X = None
+        for i in range(20):
+            if X is None:
+                X = np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")
+            else:
+                X = np.concatenate((X, np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")), axis=0)
+        return X
+
+    data = load_X()
+    y = np.load(y_train_path)
+
+    test_dataloader = DataLoader(data, shuffle=False)
+
+    def test(path): 
+        # Load the model that we saved at the end of the training loop 
+        model = Network()
+        print('testing with path: ', path)
+        model.load_state_dict(torch.load(path)) 
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"Using {device} device")    
+        model.to(device) 
+
+        with torch.no_grad(): 
+            predictions = []
+            for data in test_dataloader: 
+                images = data 
+                images = images.to(device, dtype=torch.float)
+                predicted_outputs = model(images) 
+                _, predicted = torch.max(predicted_outputs, 1) 
+                predictions.append(predicted.cpu().numpy())
+            
+            return predictions
+
+    predictions = test('ModResNet_lr_01_bs_200.pth')
+    predictions = np.asarray(predictions)
+
+    print(np.asarray(predictions).shape, y.shape)
+
+    from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
+    print("f1_score", f1_score(y, predictions, average="weighted"))
+    print("precision_score", precision_score(y, predictions, average="weighted"))
+    print("recall_score", recall_score(y, predictions, average="weighted"))    
+    print("accuracy_score", accuracy_score(y, predictions))
+    print("confusion_matrix\n", confusion_matrix(y, predictions))
+
+    # from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+    # cm = confusion_matrix(y, predictions, normalize='all')
+    # cmd = ConfusionMatrixDisplay(cm)
+    # cmd.plot()
+    # plt.savefig('confusion_matrix.png')
