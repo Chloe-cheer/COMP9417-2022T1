@@ -10,16 +10,16 @@ The COMP9417 group project for group Paranormal Distributions
     |_ algorithm
     |   |_ main.py
     |   |_ dataset.py
-    |   |_ metrics.py
-    |   |_ utils.py
     |   |_ modules
     |   |   |_ cnn.py
-    |   |   |_ ...     
+    |   |_ ...     
     |_ input
     |   |_ ...
     |_ output
     |   |_ ...
-    |_ ...
+    |_ setup.py
+    |_ notebook
+        |_ ...
 ```
 
 ### How to run
@@ -31,17 +31,26 @@ Install all requirements from `requirements.txt`:
 pip install -r requirements.txt
 ```
 
-With deafult configuration:
-```python 
+Install packeges:
+
+```Bash
+python3 -m pip install -e .
+```
+
+### Our Best Model
+
+Run main program with deafult configuration to get best model:
+```Bash
 python main.py
 ```
 
-or with arguments you want (see `parse_args(args)` in `main.py` for options):
 
-```python 
-python main.py <arg1> <arg2> ...
-```
+### Other classifier we trained and experimented
 
-### How to develop
+See `notebooks/`.
 
-WIP
+#### Balanced Classes
+balanced_classes.ipynb
+
+#### Haralick
+haralick.ipynb

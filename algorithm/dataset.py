@@ -5,8 +5,38 @@ from matplotlib import pyplot as plt
 import mahotas as mt
 import gc
 import skimage.measure
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import Dataset, DataLoader, random_split
 import torch
+
+class TransformTensorDataset(Dataset):
+    """TensorDataset with support of transforms.
+    """
+    def __init__(self, tensors, transform=None):
+        assert all(tensors[0].size(0) == tensor.size(0) for tensor in tensors)
+        self.tensors = tensors
+        self.transform = transform
+
+    def __getitem__(self, index):
+        x = self.tensors[0][index]
+
+        if self.transform:
+            x = self.transform(x)
+
+        y = self.tensors[1][index]
+
+        return x, y
+
+    def __len__(self):
+        return self.tensors[0].size(0)
+
+def load_X(x_train_path):
+    X = None
+    for i in range(20):
+        if X is None:
+            X = np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")
+        else:
+            X = np.concatenate((X, np.load(x_train_path+f"X_train_scaled_{i:02d}.npy")), axis=0)
+    return X
 
 def get_dataloaders():
   y_train = np.load('y_train.npy')
