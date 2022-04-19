@@ -2,10 +2,11 @@
 
 import argparse
 import os
+from algorithm.dataset import DatasetLoader
 import torch
 import sys
 
-def main(config):
+def main(config, model):
     """Run a thorough flow of the main program."""
     cuda = torch.cuda.is_available()
     device = torch.device('cuda' if cuda else 'cpu')
@@ -15,7 +16,16 @@ def main(config):
     else:
         print(f'{device}: {torch.cuda.get_device_name(device)}')
     
-    # TODO
+    # TODO: load dataset
+    my_dataset = DatasetLoader()
+
+    # TODO: data preprocessing
+
+    # TODO: instanciate a model instance (e.g. model = LinearRegrsssion())
+
+    # TODO: train a model (i.e. train())
+
+    # TODO: test a model (i.e. test())
 
 def load(config):
     """Load the given dataset from file."""
@@ -101,6 +111,6 @@ def parse_args(args):
 
 if __name__ == '__main__':
     args = sys.argv[1:]
-    
-    main(parse_args(args))
+
+    main(model="CNN", loss="dice_loss", metrics="dice", epochs=50)
     
