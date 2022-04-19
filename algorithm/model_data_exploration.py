@@ -6,6 +6,15 @@ from sklearn import linear_model
 from sklearn import metrics
 from sklearn.ensemble import GradientBoostingClassifier
 
+def see_distribution(array):
+    counter = {}
+    for item in array:
+        if item in counter:
+            counter[item] = counter[item] + 1 
+        else:
+            counter[item] = 1
+    print(counter)
+
 # extract 64x64 averaging and haralick features
 train_dataloader, validate_dataloader = get_dataloaders()
 haralick_train, pool_train, y_train = get_features(train_dataloader)
