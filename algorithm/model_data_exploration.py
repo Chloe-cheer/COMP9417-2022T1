@@ -5,6 +5,7 @@ from sklearn import model_selection
 from sklearn import linear_model
 from sklearn import metrics
 from sklearn.ensemble import GradientBoostingClassifier
+from matplotlib import pyplot as plt
 
 def see_distribution(array):
     counter = {}
