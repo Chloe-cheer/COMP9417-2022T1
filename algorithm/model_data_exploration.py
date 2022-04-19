@@ -1,5 +1,5 @@
-import data
-from data import get_dataloaders, extract_features, get_features
+import dataset
+from dataset import get_dataloaders, extract_features, get_features
 from sklearn.preprocessing import StandardScaler
 from sklearn import model_selection
 from sklearn import linear_model
