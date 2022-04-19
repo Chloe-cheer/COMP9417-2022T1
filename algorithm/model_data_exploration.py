@@ -7,7 +7,7 @@ from sklearn import metrics
 from sklearn.ensemble import GradientBoostingClassifier
 
 # extract 64x64 averaging and haralick features
-train_dataloader, validate_dataloader = get_dataloaders('y_train.npy', 'X_train.npy')
+train_dataloader, validate_dataloader = get_dataloaders()
 haralick_train, pool_train, y_train = get_features(train_dataloader)
 haralick_validate, pool_validate, y_validate = get_features(validate_dataloader)
 
