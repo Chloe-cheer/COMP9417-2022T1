@@ -10,6 +10,7 @@ The COMP9417 group project for group Paranormal Distributions
     |_ algorithm
     |   |_ main.py
     |   |_ dataset.py
+    |   |_ utils.py
     |   |_ modules
     |   |   |_ cnn.py
     |   |_ ...     

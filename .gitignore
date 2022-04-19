@@ -8,6 +8,7 @@ input/
 Data/
 *.pth
 *.npy
+!best-model.pth
 
 # MacOS
 .DS_Store
