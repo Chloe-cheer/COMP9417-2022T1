@@ -7,11 +7,12 @@ import torch.optim as optim
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from algorithm.dataset import TransformTensorDataset, load_X
-from algorithm.file_compressor import pre_processing
+from algorithm.utils import pre_processing_X_test, pre_processing_X_train
 
 from algorithm.modules.cnn import Network
 from algorithm.test import test_and_generate_acc_figure
 from algorithm.train import train
+from algorithm.utils import genereate_preds_for_preds_submission
 
 """
 Original notebook is located at
@@ -21,18 +22,18 @@ Original notebook is located at
 
 def main():
     # Simple configs
-    run_pre_processing = True
+    run_pre_processing = False
     split_ratio = "8:0:2" # train:val:test
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
     # Hyper-parameters
     batch_size = 1
-    num_epochs = 40
+    num_epochs = 2
 
     # Pre-processing
     if run_pre_processing:
-        pre_processing()
+        pre_processing_X_train()
 
     # Paths
     base_path = "../input/"
@@ -91,8 +92,9 @@ def main():
 
     # Train the model
     train(
-        mdoel=model,
+        model=model,
         device=device,
+        num_epochs=num_epochs,
         train_dataloader=train_dataloader,
         optimizer=optimizer,
         loss_func=loss_func,
@@ -101,7 +103,12 @@ def main():
     )
 
     # Test and generate an accuracy figure
-    test_and_generate_acc_figure(test_dataloader=test_dataloader, num_epoch=num_epochs)
+    test_and_generate_acc_figure(test_dataloader=test_dataloader, num_epochs=num_epochs)
 
 if __name__ == "__main__":
+    # Run main program that trains and saves a model 
     main()
+
+    # Generate predictions from X_test for assignment submission
+    pre_processing_X_test()
+    genereate_preds_for_preds_submission()

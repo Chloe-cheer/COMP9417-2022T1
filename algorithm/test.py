@@ -8,27 +8,25 @@ from algorithm.modules.cnn import Network
 import matplotlib.pyplot as plt
 
 def test(path, test_dataloader): 
-    """Function to test the mode."""
+    # Load the model that we saved at the end of the training loop 
     model = Network()
     print('testing with path: ', path)
     model.load_state_dict(torch.load(path)) 
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")    
     model.to(device) 
-    running_accuracy = 0 
-    total = 0 
 
     with torch.no_grad(): 
+        predictions = []
         for data in test_dataloader: 
             images, outputs = data 
             outputs = outputs.to(device, dtype=torch.float32) 
             images = images.to(device, dtype=torch.float)
             predicted_outputs = model(images) 
             _, predicted = torch.max(predicted_outputs, 1) 
-            total += outputs.size(0) 
-            running_accuracy += (predicted == outputs).sum().item() 
-        print('Accuracy of the model based on the test set of the inputs is: %d %%' % (100 * running_accuracy / total))   
-        return (100 * running_accuracy / total)
+            predictions.append(predicted.cpu().numpy())
+        
+        return predictions
 
 def test_and_generate_acc_figure(test_dataloader, num_epochs):
     start = time.time()

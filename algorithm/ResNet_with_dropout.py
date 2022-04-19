@@ -8,18 +8,14 @@ Original file is located at
 """
 
 import torch
-import torchvision
 import sklearn.metrics as metrics
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
-import statistics
 import tensorflow as tf
 import torch.optim as optim
 from torch.utils.data import Dataset, TensorDataset, DataLoader, random_split
 import torch.nn as nn
-import math
-import torchvision.transforms as tt
 import matplotlib.pyplot as plt
 
 from google.colab import drive

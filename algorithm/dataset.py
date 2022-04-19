@@ -1,7 +1,6 @@
 """Utilities for loading and preprocessing the given dataset."""
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 import mahotas as mt
 import gc
 import skimage.measure
