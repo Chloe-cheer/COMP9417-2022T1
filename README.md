@@ -16,14 +16,14 @@ The COMP9417 group project for group Paranormal Distributions
     |   |_ file_compressor.py
     |   |_ modules
     |   |   |_ cnn.py
+    |   |_ experiments
+    |   |   |_ ... (NOTE: Consist of all other classifiers we have experimented)
     |   |_ ...     
     |_ input
     |   |_ ... (NOTE: Manually put X_train and X_test here)
     |_ output
     |   |_ ... (NOTE: Default path for saving model and predictions)
     |_ setup.py (NOTE: Default path for saving model and predictions)
-    |_ notebook
-        |_ ...
 ```
 
 ### How to run

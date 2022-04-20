@@ -6,3 +6,5 @@ scikit-image
 setuptools
 scikit-learn
 pandas
+seaborn
+mahotas
