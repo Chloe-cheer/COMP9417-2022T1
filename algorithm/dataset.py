@@ -1,13 +1,15 @@
 """Utilities for loading and preprocessing the given dataset."""
 import numpy as np
-import pandas as pd
 import mahotas as mt
 import gc
 import skimage.measure
 from torch.utils.data import Dataset, DataLoader, random_split
 import torch
-import random
-import collections
+
+"""
+Custom DataSet class 
+- Wraps TensorData to allow user to perform image transforms on data before training if desired
+"""
 
 class TransformTensorDataset(Dataset):
     """TensorDataset with support of transforms.

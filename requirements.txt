@@ -1,5 +1,8 @@
-sklearn
 torch
 torchvision
 matplotlib
 numpy
+scikit-image
+setuptools
+scikit-learn
+pandas

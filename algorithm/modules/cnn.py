@@ -1,7 +1,17 @@
-"""Module containing code for a CNN object detector."""
+"""
+ResNet architecture and training/testing code for MLvCancer project
+Assumes the training data is placed in same directory and has already been scaled.
+"""
+
 from torch import nn
 
+
 class Block(nn.Module):
+    """
+    Residual block for ResNet
+    - Consists of two convolutional layers with 2-d batch normalization between followed by a dropout layer and 
+    - ReLU activation function
+    """
     def __init__(self, in_channels, out_channels, identity_downsample=None, stride=1):
         super(Block, self).__init__()
         self.conv2 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1)
@@ -35,13 +45,18 @@ class Block(nn.Module):
         x = self.relu(x)
         return x
 
-
 class Network(nn.Module):
+    """
+    Defines whole Network based on residual blocks
+    - Input layer w/ convolution, batch norm, and dropout
+    - 3 Residual blocks as described above
+    - Fully connected output layer
+    """
     def __init__(self):
         super(Network, self).__init__()
-        block=Block
+        block=Block 
         image_channels=1
-        num_classes=4
+        num_classes=5
         layers = [2, 2, 2]
         self.in_channels = 64
 
@@ -80,8 +95,8 @@ class Network(nn.Module):
         x = self.fc(x)
         return x
 
-    # function to make resnet layers based on given parameters
     def make_layers(self, block, num_residual_blocks, intermediate_channels, stride):
+        """Function to make resnet layers based on given parameters"""
         layers = []
 
         # used if size of identity is incompatible with output of block

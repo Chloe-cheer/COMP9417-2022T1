@@ -45,5 +45,9 @@ def test_and_generate_acc_figure(test_dataloader, num_epochs):
 
     plt.savefig(f'{stats_directory}/testingacc.png')
 
+    mostAccurate = accuracies.index(max(accuracies))
+    print('Most accurate model is: checkModel{}.pth'.format(str(mostAccurate * 2)))
+    print('With accuracy: {} %', max(accuracies))
+
     end = time.time()
     print(f"\nTotal testing time: {str(datetime.timedelta(seconds=end-start))}")

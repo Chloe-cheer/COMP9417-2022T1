@@ -1,7 +1,9 @@
-import dataset
-from dataset import get_dataloaders, extract_features, get_features
+import collections
+import random
+
+import numpy as np
+from dataset import get_dataloaders, get_features
 from sklearn.preprocessing import StandardScaler
-from sklearn import model_selection
 from sklearn import linear_model
 from sklearn import metrics
 from sklearn.ensemble import GradientBoostingClassifier

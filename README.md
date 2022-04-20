@@ -10,15 +10,18 @@ The COMP9417 group project for group Paranormal Distributions
     |_ algorithm
     |   |_ main.py
     |   |_ dataset.py
+    |   |_ train.py
+    |   |_ test.py
     |   |_ utils.py
+    |   |_ file_compressor.py
     |   |_ modules
     |   |   |_ cnn.py
     |   |_ ...     
     |_ input
-    |   |_ ...
+    |   |_ ... (NOTE: Manually put X_train and X_test here)
     |_ output
-    |   |_ ...
-    |_ setup.py
+    |   |_ ... (NOTE: Default path for saving model and predictions)
+    |_ setup.py (NOTE: Default path for saving model and predictions)
     |_ notebook
         |_ ...
 ```
@@ -26,14 +29,13 @@ The COMP9417 group project for group Paranormal Distributions
 ### How to run
 
 #### Installation
-Install all requirements from `requirements.txt`:
 
+Install all requirements from `requirements.txt`:
 ```Bash
 pip install -r requirements.txt
 ```
 
-Install packeges:
-
+Install packege dependencies:
 ```Bash
 python3 -m pip install -e .
 ```
@@ -44,14 +46,8 @@ Run main program with deafult configuration to get best model:
 ```Bash
 python main.py
 ```
+The algorithm we are using for the best model can be found in `algorithm\modules\cnn.py`.
 
+### Other classifiers we trained and experimented
 
-### Other classifier we trained and experimented
-
-See `notebooks/`.
-
-#### Balanced Classes
-balanced_classes.ipynb
-
-#### Haralick
-haralick.ipynb
+See `algorithm/experiments` directory.

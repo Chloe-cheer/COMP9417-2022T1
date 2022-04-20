@@ -26,6 +26,7 @@ def main():
     split_ratio = "8:0:2" # train:val:test
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
+    torch.manual_seed(10)
 
     # Hyper-parameters
     batch_size = 1
