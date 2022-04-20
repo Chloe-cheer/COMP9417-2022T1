@@ -65,11 +65,9 @@ def get_dataloaders():
   
   return train_dataloader, validate_dataloader
 
-def extract_features(image):
-    # calculate haralick texture features for 4 types of adjacency
+def extract_haralick(image):
+    # We compute the mean of the 4 thirteen dimensional vectors formed from the 4 types of adjaceny GLCM matrices and return it.
     textures = mt.features.haralick(image)
-
-    # take the mean of it and return it
     ht_mean = textures.mean(axis=0)
     return ht_mean
   
@@ -80,8 +78,8 @@ def get_features(input_dataloader):
     for batch_features, batch_label in iter(input_dataloader):
         j = 0 
         while j < len(batch_features):
-            gray =  np.dot(batch_features[j][...,:3], [76.245, 149.685, 29.07]) #combines unormalisation and 
-            haralick_feature = extract_features(gray.astype(int))
+            gray =  np.dot(batch_features[j][...,:3], [76.245, 149.685, 29.07]) #combines unormalisation and grey-scale conversion
+            haralick_feature = extract_haralick(gray.astype(int))
             haralick_features.append(haralick_feature)
             gray_normalised =  np.dot(batch_features[j][...,:3], [0.299, 0.587, 0.114])
             averaged = skimage.measure.block_reduce(gray_normalised, (64,64), np.average)
