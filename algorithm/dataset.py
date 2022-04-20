@@ -6,6 +6,8 @@ import gc
 import skimage.measure
 from torch.utils.data import Dataset, DataLoader, random_split
 import torch
+import random
+import collections
 
 class TransformTensorDataset(Dataset):
     """TensorDataset with support of transforms.
