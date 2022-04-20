@@ -35,6 +35,37 @@ while i < len(y_validate):
 see_distribution(y_train)
 see_distribution(y_validate)
 
+#generation of average colour histogram for each class based on n_samples.
+def class_colour_histogram(X,y,n_samples): 
+    random.seed(10) #set random seed
+    class_dict = collections.defaultdict(list)
+    for i in range(0,len(X)):
+        fin_class = y[i]
+        class_dict[f"{fin_class}"].append(i)
+
+    #selecting n random samples from each class
+    index_dict = dict()
+    for key in class_dict.keys():
+        index_dict[key] =random.sample(class_dict[key], n_samples) 
+
+    #acquiring average rgb values for each class
+    colours = ["red", "green", "blue"]
+    for class_no, index_list in index_dict.items():
+        final_img_avg = X[index_list].mean(axis=0)
+        plt.figure()
+        plt.xlim([0, 1])
+        for i in range(0,len(colours)):
+            histogram, bin_edges = np.histogram(final_img_avg[:, :, i], bins=256, range=(0, 1))
+            plt.plot(bin_edges[0:-1], histogram, color=colours[i])
+
+        plt.title(f"Average Colour Histogram for Class {class_no}")
+        plt.xlabel("Colour value")
+        plt.ylabel("Pixel count")
+        plt.show()
+        
+#check class average histogram based on 10 samples
+class_colour_histogram(X_train,y_train,10)
+
 # check haralick feature distributions
 haralick_eda = {}
 i = 0 
