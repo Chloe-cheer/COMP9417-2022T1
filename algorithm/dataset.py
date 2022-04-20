@@ -41,26 +41,13 @@ def get_dataloaders():
   y_train = np.load('y_train.npy')
   X_train = np.load('X_train.npy', mmap_mode='r')
  
-  n_train = 686
-  n_validate = 172
-
   full_data = [] 
   i = 0 
 
-  ## First 686 rows are our "train data"
-  print("Preparing training data...")
-  while i < n_train:
-      full_data.append([np.array(X_train[i]),y_train[i]])
-      i = i + 1
-
-  print("Training data finished.")
-  print("Preparing validation data...")
-  ## Last 172 are "validation data"
+  print("Loading data...")
   while i < len(X_train):
       full_data.append([np.array(X_train[i]),y_train[i]])
       i = i + 1
-
-  print("Validation data finished.")
 
   print("Packaging data into DataLoaders...")
  
