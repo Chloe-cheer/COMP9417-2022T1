@@ -66,7 +66,7 @@ def get_dataloaders():
   return train_dataloader, validate_dataloader
 
 def extract_haralick(image):
-    # We compute the mean of the 4 thirteen dimensional vectors formed from the 4 types of adjaceny GLCM matrices and return it.
+    # We compute the mean of the 4 thirteen dimensional vectors formed from the 4 types of adjacency GLCM matrices and return it.
     all_textures = mt.features.haralick(image)
     avg_haralick_texture = all_textures.mean(axis=0)
     return avg_haralick_texture
