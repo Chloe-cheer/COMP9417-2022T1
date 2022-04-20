@@ -167,8 +167,8 @@ optimizer = optim.Adam(net.parameters(), lr = 0.01)
 
 loss_func = nn.CrossEntropyLoss()
 
-batch_size = 1
-epochs = 70
+batch_size = 300
+epochs = 150
 
 print("Start training...")
 for epoch in range(1,epochs+1):
