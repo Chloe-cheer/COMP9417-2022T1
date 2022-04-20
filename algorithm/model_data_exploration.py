@@ -64,6 +64,7 @@ def class_colour_histogram(X,y,n_samples):
         plt.show()
         
 #check class average histogram based on 10 samples
+X_train = np.load('X_train.npy', mmap_mode='r')
 class_colour_histogram(X_train,y_train,10)
 
 # check haralick feature distributions
