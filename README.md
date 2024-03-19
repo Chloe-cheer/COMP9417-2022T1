@@ -16,7 +16,7 @@ As an individual contributor to this project, I have invested time and effort in
 
 Educational and Demo Purposes: This repository serves as a demonstration of the project's capabilities and the contributions made by myself, Chloe Chen, and others. You may refer to the materials provided here for learning and understanding concepts related to health check chatbot. However, any direct use of these materials in academic or commercial contexts without proper acknowledgment is prohibited.
 
-Attribution: If you find the content of this repository helpful and wish to reference it in your own projects or research, please provide proper attribution by acknowledging the contributions made by myself, [Your Name], and any other contributors mentioned in the project documentation.
+Attribution: If you find the content of this repository helpful and wish to reference it in your own projects or research, please provide proper attribution by acknowledging the contributions made by myself, Chloe Chen, and any other contributors mentioned in the project documentation.
 
 No Commercial Use: The materials in this repository are not licensed for commercial use. You may not use them for any commercial purposes without explicit permission from the project contributors.
 
